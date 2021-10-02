@@ -1,6 +1,6 @@
 ---
 title: <center>UNIVERSIDAD NACIONAL AUTÓNOMA DE MÉXICO</center>
-subtitle: <center>APLICADAS Y COMPUTACIÓN</center>
+subtitle: <center>MATEMÁTICAS APLICADAS Y COMPUTACIÓN</center>
 author: <center>Luján García César Alejandro<br>Gómez Hernandez Gabriela<br>Reyes Crispin Oscar Jair<br>Zepeda González Dafne Elizabeth</center>
 date: "ACTIVIDAD 3: Descripción estadística de datos en R"
 output: 
