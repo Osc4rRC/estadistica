@@ -1,0 +1,3 @@
+"0","library(plotrix)"
+"0","par(mfrow=c(1,2))"
+"0","pie3D(tabla_position$Freq,labels=paste(c(""C"",""PF"",""PG"",""SF"",""SG""),tabla_position$Freq,sep="": ""),col=2:7,explode = 0.1)"

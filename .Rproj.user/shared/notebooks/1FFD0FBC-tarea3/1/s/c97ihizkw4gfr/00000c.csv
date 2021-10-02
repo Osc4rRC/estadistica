@@ -1,0 +1,2 @@
+"0","tabla_college <- as.data.frame(table(College))"
+"0","#tabla_college"

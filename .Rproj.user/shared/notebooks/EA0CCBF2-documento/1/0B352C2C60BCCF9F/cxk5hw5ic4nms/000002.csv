@@ -1,0 +1,7 @@
+"0","# Tabla de frecuencias completa"
+"0",""
+"0","tabla.frec_sex<- matrix(cbind(tabla_sexo[1],tabla_sexo[2],"
+"0","                              sum(tabla_sexo), tablar_sexo[,],sum(tablar_sexo)),"
+"0","                        byrow=T,nrow = 2,ncol=3)"
+"2","Error in `[.default`(tablar_sexo, , ) : incorrect number of dimensions
+"

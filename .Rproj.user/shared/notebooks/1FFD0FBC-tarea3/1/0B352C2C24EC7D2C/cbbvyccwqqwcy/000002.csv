@@ -1,0 +1,2 @@
+"0","datos <- read.csv(url(""https://raw.githubusercontent.com/sivabalanb/Data-Analysis-with-Pandas-and-Python/master/nba.csv""))"
+"0","attach(datos)"

@@ -1,0 +1,2 @@
+"0",""
+"0","pie(tabla_position$Rel,labels=paste(c(""C"",""PF"",""PG"",""SF"",""SG""),tabla_position$Rel,sep="": ""),col=2:7,radius=1)"

@@ -1,0 +1,6 @@
+"0",""
+"0","tabla_frec_college <- transform(tabla_college[with(tabla_college, order(-tabla_college$Freq)),],"
+"0","          FrecAq = cumsum(Freq),"
+"0","          Rel = round(prop.table(Freq), 3),"
+"0","          RelAc = round(cumsum(prop.table(Freq)), 3))"
+"0","tabla_frec_college"
