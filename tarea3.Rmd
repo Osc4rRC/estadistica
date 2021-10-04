@@ -131,9 +131,49 @@ title("Diagrama de pastel - Posiciones \n (Frecuencias relativas)")
 ## Estadísticos de resumen
  ................  
  
-# Análisis descriptivo de variables cuantitativas
 ## Tabla de frecuencias
+
+```{r}
+#Convertimos el tipo de variable Height de string a numérico para poder trabaja con ella.
+
+Height <- as.numeric(gsub("-", ".", Height))
+
+tabla_height <- as.data.frame(table(Height)) #Frecuencias absolutas
+
+tabla_height <- transform(tabla_height[with(tabla_height, order(-tabla_height$Freq)),],
+                          FreqAc = cumsum(Freq),
+                          FreqRel = round(prop.table(Freq), 3),
+                          RelAc = round(cumsum(prop.table(Freq)), 3))
+
+rbind(tabla_height, "", c(sum(tabla_height$Freq),
+      sum(tabla_height$FreqAc), sum(tabla_height$FreqRel),
+      sum(tabla_height$RelAc)))
+
+tabla_height
+
+```
+
+Con base en la tabla anterior sabemos que la mayor cantidad de jugadores de la **NBA** tiene $6.1$ pies de altura. Más exactamente el $\%13.8$ del total de jugadores. Como el valor de la variable **Height** en el que se concentran más registros es único, podemos decir que la distibución es unimodal.
+
+
 ## Análisis gráfico
+
+```{r}
+library(plotly)
+
+height_plot <- plot_ly(x = Height, type = "box",
+                       boxpoints = "all", jitter = 0.3,
+                       name = "Height")
+height_plot <- height_plot %>% layout(title = "Altura de los jugadores de la NBA", colorway = '#3d3b72')
+
+height_plot
+```
+
+En la gráfica anterior se pueden observar tres jugadores con una altura mínima de $5.11$ pies, lo cual tiene mucho sentido ya que es bien sabido que la mayoría de los jugadores de basquetbol son altos y como prueba de ésto, se puede apreciar que la dispersión de puntos es simétrica a la derecha, es decir, la concetración de alturas está en valores elevados.Los cuatro jugadores más altos miden $7.3$ pies. 
+
+Además, $\%25$ de los jugadores miden a lo más $6.11$ pies y el $\%75$ llegan a medir hasta $6.8$ pies
+
+#Análisis gráfico
 
 # El problema de comparación y asociación entre variables
 ## Comparación estadística de las distintas cateogrías
