@@ -128,9 +128,8 @@ pie3D(tabla_position$Rel,labels=paste(c("C","PF","PG","SF","SG"),tabla_position$
 title("Diagrama de pastel - Posiciones \n (Frecuencias relativas)")
 ```  
 
-## Estadísticos de resumen
- ................  
- 
+# Estadísticos de resumen
+
 ## Tabla de frecuencias
 
 ```{r}
@@ -145,12 +144,10 @@ tabla_height <- transform(tabla_height[with(tabla_height, order(-tabla_height$Fr
                           FreqRel = round(prop.table(Freq), 3),
                           RelAc = round(cumsum(prop.table(Freq)), 3))
 
-rbind(tabla_height, "", c(sum(tabla_height$Freq),
-      sum(tabla_height$FreqAc), sum(tabla_height$FreqRel),
-      sum(tabla_height$RelAc)))
-
-tabla_height
-
+rbind(tabla_height, c("", sum(tabla_height$Freq),
+      tabla_height$FreqAc[nrow(tabla_height)],
+      sum(tabla_height$FreqRel),tabla_height$RelAc[nrow(tabla_height)]))
+      
 ```
 
 Con base en la tabla anterior sabemos que la mayor cantidad de jugadores de la **NBA** tiene $6.1$ pies de altura. Más exactamente el $\%13.8$ del total de jugadores. Como el valor de la variable **Height** en el que se concentran más registros es único, podemos decir que la distibución es unimodal.
