@@ -1,8 +1,0 @@
-"0",""
-"0","options(digits=3,papersize = ""letter"")  "
-"0","# https://stat.ethz.ch/R-manual/R-devel/library/base/html/options.html"
-"0",""
-"0",""
-"0","# Opciones globales en graficas"
-"0","par(mar=c(5.1,5,4.1,2.1),font=3,family=""sans"",bg=""yellow"")   "
-"0",""

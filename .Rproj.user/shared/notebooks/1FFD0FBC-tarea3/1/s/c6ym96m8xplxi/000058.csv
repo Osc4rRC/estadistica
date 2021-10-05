@@ -1,4 +1,0 @@
-"0","# Diagrama Circular"
-"0",""
-"0","par(mfrow=c(1,2))"
-"0","pie(tabla_position$Freq,labels=paste(c(""C"",""PF"",""PG"",""SF"",""SG""),tabla_position$Freq,sep="": ""),col=2:7,radius=1)"

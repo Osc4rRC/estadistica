@@ -1,8 +1,0 @@
-"0","datos <- read.csv(url(""https://raw.githubusercontent.com/sivabalanb/Data-Analysis-with-Pandas-and-Python/master/nba.csv""))"
-"0","datos<- datos[1:457,] #Eliminamos la ultima fila porque está en blanco"
-"0","attach(datos)"
-"2","The following objects are masked from datos (pos = 3):
-
-    Age, College, Height, Name, Number, Position, Salary, Team, Weight
-
-"

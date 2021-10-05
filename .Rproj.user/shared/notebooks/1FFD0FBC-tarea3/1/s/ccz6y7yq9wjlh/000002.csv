@@ -1,6 +1,0 @@
-"0","tabla_position <- as.data.frame(table(Position))"
-"0","tabla_position <- transform(tabla_position,"
-"0","          FrecAq = cumsum(Freq),"
-"0","          Rel = round(prop.table(Freq), 3),"
-"0","          RelAc = round(cumsum(prop.table(Freq)), 3))"
-"0","tabla_position"
