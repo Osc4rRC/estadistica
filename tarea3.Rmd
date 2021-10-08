@@ -6,11 +6,14 @@ date: "ACTIVIDAD 3: Descripción estadística de datos en R"
 output: 
   html_document: 
     toc: yes
-    highlight: textmate
+    toc_depth: 2
+    toc_float: yes
+    highlight: haddock
+    theme: readable
     number_sections: yes
-    theme: lumen
   pdf_document:
     toc: yes
+    toc_depth: '2'
 #subtitle: Descripción estadística de datos en R
 header-includes:
   \renewcommand{\contentsname}{Contenido}
@@ -20,27 +23,45 @@ header-includes:
 #Personalizando nuestra sesión
 options(digits=3,papersize = "letter")  
 # https://stat.ethz.ch/R-manual/R-devel/library/base/html/options.html
-
-
 # Opciones globales en graficas
 par(mar=c(5.1,5,4.1,2.1),font=3,family="sans",bg="yellow")   
-
 ```
-# Descripción de las variables  
+#Dependencias
+````{r}
+library(dplyr)
+library(plotrix)
+library(plotly)
+```
+
+# Descripción de las variables
 ## Características de las variables
-Utilizaremos la base de datos de los deportistas de la NBA durante 2018 que contiene información como el equipo al que pertenecen, su posición, de qué universidad provienen, entre otras. Las variables que contiene la base de datos son:
-* Name: nombre de los jugadores  
-* Team: equipo al que pertenecen los jugadores  
-* Number: Número que utiliza cada jugador dentr del equipo  
-* Position: Posición en la que se desempeñan durante cada partido  
-* Age: Edad de los jugadores  
-* Height: Altura de los jugadores  
-* Weight: Peso de los jugadores  
-* College: universidad de donde provienen  
-* Salary: Sueldo que reciben
+>Utilizaremos la base de datos de los deportistas de la NBA durante 2018 que contiene información como el equipo al que pertenecen, su posición, de qué universidad provienen, entre otras. Las variables que contiene la base de datos son:
+  * Name: nombre de los jugadores  
+  * Team: equipo al que pertenecen los jugadores  
+  * Number: Número que utiliza cada jugador dentro del equipo  
+  * Position: Posición en la que se desempeñan durante cada partido  
+  * Age: Edad de los jugadores  
+  * Height: Altura de los jugadores  
+  * Weight: Peso de los jugadores  
+  * College: Universidad de donde provienen  
+  * Salary: Sueldo que reciben
+  
 ```{r}
 datos <- read.csv(url("https://raw.githubusercontent.com/sivabalanb/Data-Analysis-with-Pandas-and-Python/master/nba.csv"))
 datos<- datos[1:457,] #Eliminamos la ultima fila porque está en blanco
+datos$Height <- gsub("-",".",datos$Height)
+datos$Height <- as.numeric(datos$Height)
+datos<- rename(datos,
+                             Nombre          =            Name,
+                             Equipo          =            Team,
+                             Numero          =          Number,
+                             Posicion        =        Position,
+                             Edad            =             Age, 
+                             Altura          =          Height,
+                             Peso            =          Weight,
+                             Universidad     =         College,
+                             Salario         =          Salary)
+
 attach(datos)
 ```
 Se clasifican de la siguiente manera:
@@ -58,109 +79,206 @@ College   | cualitativa            | nominal
 Salary    | cuantitativa/continua  | razón
 
 # Análisis descriptivo de variables cualitativas
-Vamos a utilizar la variable **College** y realizaremos un análisis para saber de qué universidad hay más jugadores.  
-
+Vamos a utilizar la variable **College** y realizaremos un análisis para saber de qué universidad hay más jugadores
 ## Tabla de frecuencias
 ```{r}
-tabla_college <- as.data.frame(table(College))
-#tabla_college
+tabla_universidad <- as.data.frame(table(Universidad))
+#tabla_universidad
+```
+```{r}
+#Sigo pensando cómo hacer bien este chunk
+#sum(tabla_universidad$Freq<=3)
+#Observamos que hay 119 Universidades diferentes pero 91 solo cuentan con registros de máximo 3 jugadores. Para una mejor visualización vamos a agrupar estos registros en una sola tupla llamada "otra".
+#tabla_mod_college <- subset(tabla_universidad, Freq>3)
+#otra <- data.frame(
+#  College=c("Otra"),
+#  Freq=sum(tabla_universidad$Freq<=3)
+#)
+#tabla_mod_college <- rbind(tabla_mod_college, otra)
+#tabla_frec_college <- transform(tabla_mod_college,
+#          FrecAq = cumsum(Freq),
+#          Rel = round(prop.table(Freq), 3),
+#          RelAc = round(cumsum(prop.table(Freq)), 3))
+#tabla_frec_college
 ```
 
 ```{r}
-
-tabla_frec_college <- transform(tabla_college[with(tabla_college, order(-tabla_college$Freq)),],
+tabla_frec_universidad <- transform(tabla_universidad[with(tabla_universidad, order(-tabla_universidad$Freq)),],
           FrecAq = cumsum(Freq),
           Rel = round(prop.table(Freq), 3),
           RelAc = round(cumsum(prop.table(Freq)), 3))
-tabla_frec_college
+tabla_frec_universidad
 ```
-Con la tabla de frecuencias observamos que **Kentucky** con 22 jugadores es la universidad que tiene más alumnos en la NBA, seguida de la universidad de **Duke** con 20 jugadores. Aunque hay 84jugadores que no pertenecen a ninguna universidad o no tienen una registrada, pero solo representan el 18% de todos los jugadores, entonces decimos que el 82% de jugadores, es decir 373 jugadores, pertenecen a alguna universidad.
+
+>Con la tabla de frecuencias observamos que **Kentucky** con 22 jugadores es la universidad que tiene más alumnos en la NBA, seguida de la universidad de **Duke** con 20 jugadores. Aunque hay 84jugadores que no pertenecen a ninguna universidad o no tienen una registrada, pero solo representan el 18% de todos los jugadores, entonces decimos que el 82% de jugadores, es decir 373 jugadores, pertenecen a alguna universidad.
 También podemos observar que la mayoría de universidades cuentan con máximo 2 jugadores de la NBA, son pocas las universidades privilegiadas de aportar varios estudiantes a la NBA.  
 
 Ahora vamos a realizar el mismo análisis para la variable de posiciones
 ```{r}
-tabla_position <- as.data.frame(table(Position))
-tabla_position <- transform(tabla_position,
+tabla_posicion <- as.data.frame(table(Posicion))
+tabla_posicion <- transform(tabla_posicion,
           FrecAq = cumsum(Freq),
           Rel = round(prop.table(Freq), 3),
           RelAc = round(cumsum(prop.table(Freq)), 3))
-total <- data.frame(
-  Position = as.factor("TOTAL"),
-  Freq = sum(tabla_position$Freq),
-  FrecAq = sum(tabla_position$Freq),
-  Rel = sum(tabla_position$Rel),
-  RelAc = sum(tabla_position$Rel)
-)
-total <- rbind(tabla_position,total)
-total
+tabla_posicion
 ```
-Observamos que la posición en la que más jugadores se desempeñan es **SG (Shooting Guard)**, mientras que la posición que menos jugadores tiene es **C (Center o Pivot)**, lo cual tiene sentido ya que en esta posición las hibilidades más importantes son el peso y la fuerza y la mayoría de jugadores que vemos en la NBA tienden a ser delgados y ligeros para tener mayor agilidad, aunque no es mucha la diferencia de jugadores que hay en esta posición comparada con las otras posiciones.
+
+>Observamos que la posición en la que más jugadores se desempeñan es **SG (Shooting Guard)**, mientras que la posición que menos jugadores tiene es **C (Center o Pivot)**, lo cual tiene sentido ya que en esta posición las hibilidades más importantes son el peso y la fuerza y la mayoría de jugadores que vemos en la NBA tienden a ser delgados y ligeros para tener mayor agilidad, aunque no es mucha la diferencia de jugadores que hay en esta posición comparada con las otras posiciones.
 
 ## Análisis gráfico
 ```{r}
 # Diagrama Circular
-
 par(mfrow=c(1,2))
-pie(tabla_position$Freq,labels=paste(c("C","PF","PG","SF","SG"),tabla_position$Freq,sep=": "),col=2:7,radius=1)
+pie(tabla_posicion$Freq,labels=paste(c("C","PF","PG","SF","SG"),tabla_posicion$Freq,sep=": "),col=2:7,radius=1)
 title("Diagrama de pastel - Posiciones \n (Frecuencias)")
-
-pie(tabla_position$Rel,labels=paste(c("C","PF","PG","SF","SG"),tabla_position$Rel,sep=": "),col=2:7,radius=1)
+pie(tabla_posicion$Rel,labels=paste(c("C","PF","PG","SF","SG"),tabla_posicion$Rel,sep=": "),col=2:7,radius=1)
 title("Diagrama de pastel - Posiciones \n (Frecuencias relativas)")
 ```
 ```{r}
-library(plotrix)
 par(mfrow=c(1,2))
-pie3D(tabla_position$Freq,labels=paste(c("C","PF","PG","SF","SG"),tabla_position$Freq,sep=": "),col=2:7,explode = 0.1)
+pie3D(tabla_posicion$Freq,labels=paste(c("C","PF","PG","SF","SG"),tabla_posicion$Freq,sep=": "),col=2:7,explode = 0.1)
 title("Diagrama de pastel - Posiciones \n (Frecuencias)")
-
-pie3D(tabla_position$Rel,labels=paste(c("C","PF","PG","SF","SG"),tabla_position$Rel,sep=": "),col=2:7,explode = 0.1)
+pie3D(tabla_posicion$Rel,labels=paste(c("C","PF","PG","SF","SG"),tabla_posicion$Rel,sep=": "),col=2:7,explode = 0.1)
 title("Diagrama de pastel - Posiciones \n (Frecuencias relativas)")
 ```  
-Análizando mediante una gráfica de pastel, podemos observar que se notan menos esas diferencias en la cantidad de jugadores para cada posición, ya que es muy baja como mencionamos anteriormente. La diferencia que hay entre la posición que tiene menos jugadores (C: 17%) y la que tiene más (SG: 22%) es del 5%, casi nada, por lo tanto podemos concluir que no hay diferencias estadísticamente significativas entre la cantidad de jugadores en cada una de las posiciones.
 
-# Análisis descriptivo de variables cuantitativas
+# Estadísticos de resumen
 
 ## Tabla de frecuencias
 
 ```{r}
 #Convertimos el tipo de variable Height de string a numérico para poder trabaja con ella.
-
-Height <- as.numeric(gsub("-", ".", Height))
-
-tabla_height <- as.data.frame(table(Height)) #Frecuencias absolutas
-
-tabla_height <- transform(tabla_height[with(tabla_height, order(-tabla_height$Freq)),],
+tabla_altura <- as.data.frame(table(Altura)) #Frecuencias absolutas
+tabla_altura <- transform(tabla_altura[with(tabla_altura, order(-tabla_altura$Freq)),],
                           FreqAc = cumsum(Freq),
                           FreqRel = round(prop.table(Freq), 3),
                           RelAc = round(cumsum(prop.table(Freq)), 3))
-
-rbind(tabla_height, c("", sum(tabla_height$Freq),
-      tabla_height$FreqAc[nrow(tabla_height)],
-      sum(tabla_height$FreqRel),tabla_height$RelAc[nrow(tabla_height)]))
+rbind(tabla_altura, c("", sum(tabla_altura$Freq),
+      tabla_altura$FreqAc[nrow(tabla_altura)],
+      sum(tabla_altura$FreqRel),tabla_altura$RelAc[nrow(tabla_altura)]))
       
 ```
 
-Con base en la tabla anterior sabemos que la mayor cantidad de jugadores de la **NBA** tiene $6.1$ pies de altura. Más exactamente el $\%13.8$ del total de jugadores. Como el valor de la variable **Height** en el que se concentran más registros es único, podemos decir que la distibución es unimodal.
+>Con base en la tabla anterior sabemos que la mayor cantidad de jugadores de la **NBA** tiene $6.1$ pies de altura. Más exactamente el $\%13.8$ del total de jugadores. Como el valor de la variable **Height** en el que se concentran más registros es único, podemos decir que la distibución es unimodal.
 
 
 ## Análisis gráfico
 
 ```{r}
-library(plotly)
-
-height_plot <- plot_ly(x = Height, type = "box",
+altura_plot <- plot_ly(x = Altura, type = "box",
                        boxpoints = "all", jitter = 0.3,
-                       name = "Height")
-height_plot <- height_plot %>% layout(title = "Altura de los jugadores de la NBA", colorway = '#3d3b72')
-
-height_plot
+                       name = "Altura")
+altura_plot <- altura_plot %>% layout(title = "Altura de los jugadores de la NBA", colorway = '#3d3b72')
+altura_plot
 ```
 
-En la gráfica anterior se pueden observar tres jugadores con una altura mínima de $5.11$ pies, lo cual tiene mucho sentido ya que es bien sabido que la mayoría de los jugadores de basquetbol son altos y como prueba de ésto, se puede apreciar que la dispersión de puntos es simétrica a la derecha, es decir, la concetración de alturas está en valores elevados.Los cuatro jugadores más altos miden $7.3$ pies. 
+>En la gráfica anterior se pueden observar tres jugadores con una altura mínima de $5.11$ pies, lo cual tiene mucho sentido ya que es bien sabido que la mayoría de los jugadores de basquetbol son altos y como prueba de ésto, se puede apreciar que la dispersión de puntos es simétrica a la derecha, es decir, la concetración de alturas está en valores elevados.Los cuatro jugadores más altos miden $7.3$ pies. 
 
-Además, $\%25$ de los jugadores miden a lo más $6.11$ pies y el $\%75$ llegan a medir hasta $6.8$ pies
+>Además, $25\%$ de los jugadores miden a lo más $6.11$ pies y el $\%75$ llegan a medir hasta $6.8$ pies
+
+# Análisis gráfico
+
+***
 
 # El problema de comparación y asociación entre variables
+
+> Para esta sección usaremos las variables estatura, peso y posición.
+
 ## Comparación estadística de las distintas cateogrías
+
+>Comenzaré por explicar un poco sobre qué significado tienen las etiquetas de las posiciones y un poco sobre la función de los jugadores en esta posición. Existen 5 posiciones la cuales a su vez se dividen en: posiciones interiores y posiciones exteriores.*
+
+**Posiciones exteriores**
+
+>*1. Point Guard (PG): Su función es dirigir y controlar el ritmo del partido. Es quien tiene el control del juego dentro de la cancha.  Tiene las siguientes carácterísticas:*
+  * Visión periférica.
+  * Capacidad de moverser entre las zonas.
+  * Agilidad en pies y manos para defender.
+
+
+>*2. Shooting Guard (SG) :Tiene las mismas características que el PG pero suele ser más anotador.*
+
+>*3. Small Forward (SF) : Tiene las siguientes carácterísticas:*
+  * Rápido para el contraataque.
+  * Habilidoso a la hora de pentrar en situaciones uno contra uno.
+  * Rebotador.
+  * Preción al tirar.
+
+**Posciones interiores**
+
+>*4. Power Forward (PF): Tienen la función de rebotear en ataque y defensa, suelen jugar desde espacios interiores de media distancia o distancias cercanas.*
+
+>*5. Center (C): Domina el uso de su cuerpo para ganar espacios en la cancha y juega cerca de aro.*
+
+En la siguiente imagen se muestra las posciones que ocupan en la cancha según su número
+
+<center>![](https://luismiguelguerrero.files.wordpress.com/2015/12/positions.gif?w=344&h=258)</center>
+
+
+>Ahora que tenemos una idea de qué significan las etiquetas de las posiciones y en qué lugar de la cancha se ubican, haremos un histograma sobre estas posicones.
+
+```{r}
+Posicion_plot <- plot_ly(tabla_posicion, 
+                         x = ~Posicion, 
+                         y = ~Freq, 
+                         type = 'bar', 
+                         text = ~Freq,
+                         color = ~Posicion)
+
+Posicion_plot <- Posicion_plot %>%
+  layout(title = "Frecuencias de la posiciones",
+         xaxis = list(title = "Posición"),
+         yaxis = list(title = "Frecuencia"))
+
+Posicion_plot
+
+```
+> Según la gráfica de barras en las posiciones interiores (C y PF) tienen una diferencia notable entre la cantidad de jugadores,además la posición C es la que menos jugadores tiene y la posición PF es la segunda con más jugadores, haremos una prueba de proporsión para verificar esto.
+
+```{r}
+
+tab_pos <- table(Posicion)
+prop.test(x = c(tab_pos["C"],
+                tab_pos["PF"]),
+                n = c(400,400),
+                conf.level = 0.95)
+
+```
+>*Conclusión: como $\alpha$ = 0.05 < p-value, no se rechaza la hipótesis nula. Es decir que no hay evidencia estadística suficiente para decir que la proporción entre las posiciones interiores son diferentes.*
+
+***
+
 ## Análisis estadístico e inferencial
+```{r}
+grupos <- plot_ly(x=datos$Peso[Posicion=="C"], type="box", name = "C" )
+grupos <- grupos %>% add_trace(x=datos$Peso[Posicion=="PF"], type="box", name = "PF" )
+grupos <- grupos %>% add_trace(x=datos$Peso[Posicion=="PG"], type="box", name = "PG" )
+grupos <- grupos %>% add_trace(x=datos$Peso[Posicion=="SF"], type="box", name = "SF" )
+grupos <- grupos %>% add_trace(x=datos$Peso[Posicion=="SG"], type="box", name = "SG" )
+grupos <- grupos %>% layout(title = "Posiciones según el peso de los jugadores")
+
+grupos
+```
+
+>En general se nota como las posiones interiores tienen a los jugadores de mayor peso y resalta la clase PG con los jugadores más ligeros,además ninguna de las clases tiene una distribución normal.
+
+>La clase SG tiene asimetría negativa y el brazo izquierdo más largo, esto indica que los jugadores en esta posición tienen un peso mayor a 209.5 libras y el resto aunque son menos tienden a ser notablemente más ligeros.
+
+>La clase SF tiene asimetría negativa y muy clara, en este caso el brazo más largo es el derecho aunque tiene un valor atípico en el lado inferior. La mayoría de los jugadores tienen un peso mayor a 225 libras y existen unos cuantos más delgados que el resto, incluso uno muy por debajo de los demás.
+
+>La clase PG tiene asimetría positiva y el brazo más largo es el izquierdo, es decir que la mayoría de los jugadores son muy delgados y solo unos tienen un peso mayor a 190 libras.
+
+>La clase PF tiene asimetría positiva, los brazos parecen tener el mismo tamaño y obsevamos un valor atípico en lado inferior, es decir varios jugadores en esta posición tienen un peso menor a 240 libras.
+
+>La clase C tiene asimetría positiva y los brazos tienen una magnitud similar aunque existe un jugador muy por encima del peso de los demás la mayoría tiene un peso menos a 250 libras.
+
+>Para finalizar podemos notar como los pesos van aumentando según la clase en el siguiente orden: PG, SG, SF, PF y C.
+  
+Hagamos una prueba de hipótesis para comparar las medianas de la clases PG y C, esto con el fin de corrobar que son diferentes.
+
+```{r}
+wilcox.test(datos$Peso[Posicion=="PG"], datos$Peso[Posicion=="C"])
+```
+>Conclusión: Se rechaza la hipótesis nula, lo que significa que si existe evidencia estadística de que la clase PG es más ligera que la clae C.
+
 ## Análisis de la asociación
