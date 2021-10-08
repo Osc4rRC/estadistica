@@ -27,7 +27,7 @@ options(digits=3,papersize = "letter")
 par(mar=c(5.1,5,4.1,2.1),font=3,family="sans",bg="yellow")   
 ```
 #Dependencias
-````{r}
+````{r cache=FALSE, message=FALSE}
 library(dplyr)
 library(plotrix)
 library(plotly)
@@ -66,43 +66,26 @@ attach(datos)
 ```
 Se clasifican de la siguiente manera:
 
-Variable  | Tipo                   | Escala de medición
-----------|------------------------|--------------------
-Name      | cualitativa            | nominal
-Team      | cualitativa            | nominal
-Number    | cualitativa            | nominal    
-Position  | cualitativa            | nominal
-Age       | cuantitativa/discreta  | intervalo
-Height    | cuantitativa/continua  | razón
-Weight    | cuantitativa/continua  | razón
-College   | cualitativa            | nominal
-Salary    | cuantitativa/continua  | razón
+Variable   | Tipo                   | Escala de medición
+-----------|------------------------|--------------------
+Nombre     | cualitativa            | nominal
+Equipo     | cualitativa            | nominal
+Número     | cualitativa            | nominal    
+Posición   | cualitativa            | nominal
+Edad       | cuantitativa/discreta  | intervalo
+Altura     | cuantitativa/continua  | razón
+Peso       | cuantitativa/continua  | razón
+Universidad| cualitativa            | nominal
+Salario    | cuantitativa/continua  | razón
 
 # Análisis descriptivo de variables cualitativas
-Vamos a utilizar la variable **College** y realizaremos un análisis para saber de qué universidad hay más jugadores
+Vamos a utilizar la variable **College** y realizaremos un análisis para saber de qué universidad hay más jugadores.  
+
 ## Tabla de frecuencias
-```{r}
-tabla_universidad <- as.data.frame(table(Universidad))
-#tabla_universidad
-```
-```{r}
-#Sigo pensando cómo hacer bien este chunk
-#sum(tabla_universidad$Freq<=3)
-#Observamos que hay 119 Universidades diferentes pero 91 solo cuentan con registros de máximo 3 jugadores. Para una mejor visualización vamos a agrupar estos registros en una sola tupla llamada "otra".
-#tabla_mod_college <- subset(tabla_universidad, Freq>3)
-#otra <- data.frame(
-#  College=c("Otra"),
-#  Freq=sum(tabla_universidad$Freq<=3)
-#)
-#tabla_mod_college <- rbind(tabla_mod_college, otra)
-#tabla_frec_college <- transform(tabla_mod_college,
-#          FrecAq = cumsum(Freq),
-#          Rel = round(prop.table(Freq), 3),
-#          RelAc = round(cumsum(prop.table(Freq)), 3))
-#tabla_frec_college
-```
 
 ```{r}
+tabla_universidad <- as.data.frame(table(Universidad))
+
 tabla_frec_universidad <- transform(tabla_universidad[with(tabla_universidad, order(-tabla_universidad$Freq)),],
           FrecAq = cumsum(Freq),
           Rel = round(prop.table(Freq), 3),
@@ -117,34 +100,35 @@ Ahora vamos a realizar el mismo análisis para la variable de posiciones
 ```{r}
 tabla_posicion <- as.data.frame(table(Posicion))
 tabla_posicion <- transform(tabla_posicion,
-          FrecAq = cumsum(Freq),
-          Rel = round(prop.table(Freq), 3),
-          RelAc = round(cumsum(prop.table(Freq)), 3))
-tabla_posicion
+                            FrecAq = cumsum(Freq),
+                            Rel = round(prop.table(Freq), 3),
+                            RelAc = round(cumsum(prop.table(Freq)), 3))
+total <- data.frame(
+  Posicion = as.factor("TOTAL"),
+  Freq = sum(tabla_posicion$Freq),
+  FrecAq = sum(tabla_posicion$Freq),
+  Rel = sum(tabla_posicion$Rel),
+  RelAc = sum(tabla_posicion$Rel)
+)
+total <- rbind(tabla_posicion,total)
+total
 ```
 
 >Observamos que la posición en la que más jugadores se desempeñan es **SG (Shooting Guard)**, mientras que la posición que menos jugadores tiene es **C (Center o Pivot)**, lo cual tiene sentido ya que en esta posición las hibilidades más importantes son el peso y la fuerza y la mayoría de jugadores que vemos en la NBA tienden a ser delgados y ligeros para tener mayor agilidad, aunque no es mucha la diferencia de jugadores que hay en esta posición comparada con las otras posiciones.
 
 ## Análisis gráfico
 ```{r}
-# Diagrama Circular
-par(mfrow=c(1,2))
-pie(tabla_posicion$Freq,labels=paste(c("C","PF","PG","SF","SG"),tabla_posicion$Freq,sep=": "),col=2:7,radius=1)
-title("Diagrama de pastel - Posiciones \n (Frecuencias)")
-pie(tabla_posicion$Rel,labels=paste(c("C","PF","PG","SF","SG"),tabla_posicion$Rel,sep=": "),col=2:7,radius=1)
-title("Diagrama de pastel - Posiciones \n (Frecuencias relativas)")
-```
-```{r}
+universidad_plot <- plot_ly(tabla_posicion, labels = ~tabla_posicion$Posicion, values = tabla_posicion$Freq, type = 'pie')
+universidad_plot <- universidad_plot %>% layout(title = 'Posiciones de los jugadores de la NBA')
 
-par(mfrow=c(1,2))
-pie3D(tabla_posicion$Freq,labels=paste(c("C","PF","PG","SF","SG"),tabla_posicion$Freq,sep=": "),col=2:7,explode = 0.1)
-title("Diagrama de pastel - Posiciones \n (Frecuencias)")
-pie3D(tabla_posicion$Rel,labels=paste(c("C","PF","PG","SF","SG"),tabla_posicion$Rel,sep=": "),col=2:7,explode = 0.1)
-title("Diagrama de pastel - Posiciones \n (Frecuencias relativas)")
-
+universidad_plot
 ```  
 
-# Estadísticos de resumen
+>Análizando mediante una gráfica de pastel, podemos observar que se notan menos esas diferencias en la cantidad de jugadores para cada posición, ya que es muy baja como mencionamos anteriormente. La diferencia que hay entre la posición que tiene menos jugadores (C: 17%) y la que tiene más (SG: 22%) es del 5%, casi nada, por lo tanto podemos concluir que no hay diferencias estadísticamente significativas entre la cantidad de jugadores en cada una de las posiciones.  
+
+## Estadísticos de resumen
+
+# Anális descriptivo de variables cuantitativas
 
 ## Tabla de frecuencias
 
@@ -176,9 +160,9 @@ altura_plot
 
 >En la gráfica anterior se pueden observar tres jugadores con una altura mínima de $5.11$ pies, lo cual tiene mucho sentido ya que es bien sabido que la mayoría de los jugadores de basquetbol son altos y como prueba de ésto, se puede apreciar que la dispersión de puntos es simétrica a la derecha, es decir, la concetración de alturas está en valores elevados.Los cuatro jugadores más altos miden $7.3$ pies. 
 
->Además, $25\%$ de los jugadores miden a lo más $6.11$ pies y el $\%75$ llegan a medir hasta $6.8$ pies
+>Además, $25\%$ de los jugadores miden a lo más $6.11$ pies y el $\%75$ llegan a medir hasta $6.8$ pies  
 
-# Análisis gráfico
+## Gráfica de la ojíva
 
 ***
 
