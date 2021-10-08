@@ -108,13 +108,13 @@ pie(tabla_position$Rel,labels=paste(c("C","PF","PG","SF","SG"),tabla_position$Re
 title("Diagrama de pastel - Posiciones \n (Frecuencias relativas)")
 ```
 ```{r}
-library(plotrix)
-par(mfrow=c(1,2))
-pie3D(tabla_position$Freq,labels=paste(c("C","PF","PG","SF","SG"),tabla_position$Freq,sep=": "),col=2:7,explode = 0.1)
-title("Diagrama de pastel - Posiciones \n (Frecuencias)")
+#library(plotrix)
+#par(mfrow=c(1,2))
+#pie3D(tabla_position$Freq,labels=paste(c("C","PF","PG","SF","SG"),tabla_position$Freq,sep=": "),col=2:7,explode = 0.1)
+#title("Diagrama de pastel - Posiciones \n (Frecuencias)")
 
-pie3D(tabla_position$Rel,labels=paste(c("C","PF","PG","SF","SG"),tabla_position$Rel,sep=": "),col=2:7,explode = 0.1)
-title("Diagrama de pastel - Posiciones \n (Frecuencias relativas)")
+#pie3D(tabla_position$Rel,labels=paste(c("C","PF","PG","SF","SG"),tabla_position$Rel,sep=": "),col=2:7,explode = 0.1)
+#title("Diagrama de pastel - Posiciones \n (Frecuencias relativas)")
 ```  
 Análizando mediante una gráfica de pastel, podemos observar que se notan menos esas diferencias en la cantidad de jugadores para cada posición, ya que es muy baja como mencionamos anteriormente. La diferencia que hay entre la posición que tiene menos jugadores (C: 17%) y la que tiene más (SG: 22%) es del 5%, casi nada, por lo tanto podemos concluir que no hay diferencias estadísticamente significativas entre la cantidad de jugadores en cada una de las posiciones.
 
