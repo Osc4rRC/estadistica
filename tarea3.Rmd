@@ -36,6 +36,7 @@ library(plotly)
 # Descripción de las variables
 ## Características de las variables
 >Utilizaremos la base de datos de los deportistas de la NBA durante 2018 que contiene información como el equipo al que pertenecen, su posición, de qué universidad provienen, entre otras. Las variables que contiene la base de datos son:
+
   * Name: nombre de los jugadores  
   * Team: equipo al que pertenecen los jugadores  
   * Number: Número que utiliza cada jugador dentro del equipo  
@@ -128,14 +129,28 @@ universidad_plot
 
 ## Estadísticos de resumen
 
+
+>Cómo es una variable con escala de medición nominal la única estadística de resumen que nos da información útil de la variable es la moda la cuál calcularemos a continuación:
+
+```{r}
+library(modeest)
+moda<-mfv(Posicion)
+moda
+```
+>Vemos que la posición "SG" es la posición con mayor cantidad de jugadores, lo cual nos indica que al momento de contratar algún nuevo jugador sería bueno que tuviera una posición diferente.
+
+
+**Estadístico**          | **Valor**                   
+-------------------------|----------
+Moda                     |    
+
 # Anális descriptivo de variables cuantitativas
 
 ## Tabla de frecuencias
 
 ```{r}
-#Convertimos el tipo de variable Height de string a numérico para poder trabaja con ella.
 tabla_altura <- as.data.frame(table(Altura)) #Frecuencias absolutas
-tabla_altura <- transform(tabla_altura[with(tabla_altura, order(-tabla_altura$Freq)),],
+tabla_altura <- transform(tabla_altura[with(tabla_altura, order(-tabla_altura$Altura)),],
                           FreqAc = cumsum(Freq),
                           FreqRel = round(prop.table(Freq), 3),
                           RelAc = round(cumsum(prop.table(Freq)), 3))
@@ -162,9 +177,96 @@ altura_plot
 
 >Además, $25\%$ de los jugadores miden a lo más $6.11$ pies y el $\%75$ llegan a medir hasta $6.8$ pies  
 
+
+
 ## Gráfica de la ojíva
 
-***
+
+```{r}
+
+library(agricolae)
+h=ogive.freq(hist(Altura,plot=FALSE))
+
+```
+
+>Haciendo uso de la gráfica podemos aproximar que para el porcentil 0.15 el valor es de 6.1, para el porcentil 0.60 el valor es de 6.6 y para 0.95 el valor es de 7. Ahora lo Verificaremos usando R:
+
+```{r echo=TRUE}
+quantile(Altura,probs = c(0.15,0.60,0.95))
+```
+>Vemos que los valores aproximados si fueron bastante cercanos a los valores reales.
+
+>A partir de los resultados podemos concluir que el 15% de los deportistas tienen hasta 6.1 pies de altura, 60% de los deportistas tienen hasta 6.7 pies de altura y 90% de los deportistas tienen hasta 7 pies de altura.
+
+>Otra forma de graficar la ojiva es:
+
+
+```{r}
+x7<-cbind(tabla_altura[,1],tabla_altura[,5])
+```
+
+
+```{r warning=FALSE}
+
+#preparamos un data frame para la grafica
+h<-data.frame(cbind(x7[,1],x7[,2]));h
+library(plotly)
+plot_ly(data=h,x= ~x7[,1],y= ~x7[,2],
+        marker=list(size=10,color="red"),
+        type='scatter',mode='lines')%>%
+        layout(title='Ojiva (Altura)',
+        xaxis=list(title='Altura (pies)'),
+        yaxis=list(title= 'Pi'),
+        shapes=list(
+            list(type="line",x0=0,x1=0,y0=0,y1=1,yref="paper"),
+            list(type="line",x0=0,x1=8,y0=1,y1=1,xref="paper")
+         ))
+
+```
+
+
+## Estadísticos de Resumen
+
+Al ser una variable cuantitativa con escala de medición de tipo razón se pueden calcular practicamente todos los estadísticos de resumen. Primero calcularemos las medidas de tendencia central:
+```{r}
+#media
+mean(Altura)
+#mediana
+median(Altura)
+#moda
+library(modeest)
+mfv(Altura)
+
+#cuantiles
+quantile(Altura,probs = c(0.25,0.50,0.75))
+
+```
+Ahora calcularemos las medidas de dispersión:
+```{r}
+#rango
+rango<-range(Altura); rango[2]-rango[1]
+#rango intercuartil
+IQR(Altura)
+#desviación estándar
+sd(Altura)
+#varianza
+var(Altura)
+#coeficiente de variación
+cv<- sd(Altura)/mean(Altura); cv
+```
+**Estadístico**          | **Valor**                   
+-------------------------|----------
+Media                    | 6.52              
+Mediana                  | 6.6             
+Moda                     | 6.5                 
+Porcentil 25             | 6.11   
+Porcentil 50             | 6.6   
+Porcentil 75             | 6.8   
+Rango                    | 2.19   
+Rango Intercuartil       | 0.69       
+Desviación estándar      | 0.352   
+Varianza                 | 0.124
+Coeficiente de variación | 0.054
 
 # El problema de comparación y asociación entre variables
 
@@ -256,7 +358,7 @@ grupos
 
 >La clase PF tiene asimetría positiva, los brazos parecen tener el mismo tamaño y obsevamos un valor atípico en lado inferior, es decir varios jugadores en esta posición tienen un peso menor a 240 libras.
 
->La clase C tiene asimetría positiva y los brazos tienen una magnitud similar aunque existe un jugador muy por encima del peso de los demás la mayoría tiene un peso menos a 250 libras.
+>La clase C tiene asimetría positiva y los brazos tienen una magnitud similar aunque existe un jugador muy por encima del peso de los demás, la mayoría tiene un peso menor a 250 libras.
 
 >Para finalizar podemos notar como los pesos van aumentando según la clase en el siguiente orden: PG, SG, SF, PF y C.
   
@@ -268,3 +370,17 @@ wilcox.test(datos$Peso[Posicion=="PG"], datos$Peso[Posicion=="C"])
 >Conclusión: Se rechaza la hipótesis nula, lo que significa que si existe evidencia estadística de que la clase PG es más ligera que la clae C.
 
 ## Análisis de la asociación
+
+>Calculamos el coeficiente de correlación
+
+```{r}
+round(cor(datos[c(6,7)]),digits=2)
+```
+>Con el coeficiente de correlación vemos que existe una pequeña asociación positiva (ambas variables aumentan) entre el peso y la altura.
+>Ahora graficamos para darnos una mejor idea de como se comportan los datos.
+
+```{r}
+plot(datos[c(6,7)])
+```
+
+>Podemos concluir que cuando la estatura es baja el peso varía mucho pero mientras la estatura va aumentando el peso también va aumentando, esto se ve muy claro ya que los jugadores con alturas mayores tienden a tener pesos mayores pero los jugadores de pesos mayores no necesariamente tienden a ser altos.
